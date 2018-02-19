@@ -7,16 +7,22 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
-Private trendingID As String
-Private trendingCol As Integer
-Private trendingRange As Range
-Private trendingSheet As String
-Private frontEndSheet As String
-Private lRow As Long
-Private controlRange As String
-Private categoryCol As Integer
-Private xAxisRange As Range
 
+
+Private trendingSheet As String 'Name of the sheet the data series lives in
+Private frontEndSheet As String 'Name of the sheet the chart and ID control field lives in
+Private controlRange As String 'Stoes the range value for the ID control field
+Private trendingID As String 'Used to identify which series to plot
+
+Private trendingCol As Integer 'Stores the value of the column the data series lives in
+Private lRow As Long 'Identifies the last row in the data series
+Private trendingRange As Range 'Stores the value of the range of the data series
+
+Private categoryCol As Integer 'The value of the column where the horizontal axis series lies. Assumes same for all data series in given chart.
+Private xAxisRange As Range 'Stores the value of the range of the horizontal axis data series
+
+
+'The following private set functions are called in the setProperties public function and carry out some actions to update all the values above.
 
 Private Sub setControlRange(cr As String)
 
@@ -26,7 +32,7 @@ End Sub
 
 Private Sub setCategoryCol(colNum As Integer)
 
-categoryCol = colNum
+    categoryCol = colNum
 
 End Sub
 
@@ -52,7 +58,6 @@ Private Sub setFrontEndSheet(sheetName As String)
 
     frontEndSheet = sheetName
     Exit Sub
-
     
 End Sub
 
@@ -90,6 +95,7 @@ Private Sub setxAxisRange()
 
 End Sub
 
+' This function takes user defined input and updates all the properties in the chart object needed to update the chart accordingly.
 Public Function setProperties(frontEndSheet As String, dataSheet As String, catCol As Integer, cr As String) As Boolean
 
     On Error GoTo eh
@@ -105,11 +111,14 @@ Public Function setProperties(frontEndSheet As String, dataSheet As String, catC
     setProperties = True
     Exit Function
 eh:
+    ' This prevents the chart from changing if the trending ID cannot be found or any other error occurs.
+    ' The chart will not update until valid entries are made.
     setProperties = False
     
 End Function
 
 
+'This function takes the updated properties of the object and applies them to the specified chart object. The chart object is specified by chartObjectNum
 Public Sub updateSeries(chartObjectNum As Integer)
 
     Worksheets(frontEndSheet).ChartObjects(chartObjectNum).Chart.HasTitle = True
